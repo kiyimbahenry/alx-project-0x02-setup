@@ -55,6 +55,14 @@ const Header: React.FC = () => {
                   Posts
                 </Link>
               </li>
+              <li>
+                <Link 
+                  href="/users" 
+                  className={`px-3 py-2 rounded-md transition-colors ${isActive('/users')}`}
+                >
+                  Users
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>
