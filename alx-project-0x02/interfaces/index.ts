@@ -42,3 +42,23 @@ export interface JsonPlaceholderUser {
     bs: string;
   };
 }
+
+// ... existing interfaces ...
+
+// PostCard component props interface
+export interface PostProps {
+  id: number;
+  userId: number;
+  title: string;
+  content: string;
+}
+
+// JSONPlaceholder Post interface
+export interface JsonPlaceholderPost {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+}
+
+// ... rest of your existing interfaces ...
