@@ -14,18 +14,20 @@ export default function Home() {
           </p>
           <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-              Project Setup Complete! 🎉
+              Main Landing Page
             </h2>
             <p className="text-gray-600 mb-4">
-              This project includes:
+              This is the main index page. Use the navigation to visit:
             </p>
             <ul className="list-disc list-inside text-left text-gray-600 space-y-2">
-              <li>Next.js with TypeScript</li>
-              <li>Tailwind CSS for styling</li>
-              <li>ESLint for code quality</li>
-              <li>Component-based architecture</li>
-              <li>Responsive design</li>
+              <li><strong>Home</strong> - Learn about Next.js features</li>
+              <li><strong>About</strong> - Learn about our project and mission</li>
             </ul>
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              <p className="text-blue-700">
+                <strong>Note:</strong> We're using Next.js Pages Router for file-based routing.
+              </p>
+            </div>
           </div>
         </div>
       </main>
