@@ -1,14 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import PostCard from '@/components/common/PostCard';
 import { type JsonPlaceholderPost, type PostProps } from '@/interfaces';
 
-const PostsPage: React.FC = () => {
-  const [posts, setPosts] = useState<PostProps[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+// This function runs at build time
+export async function getStaticProps() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch posts: ${response.status}`);
+    }
+    
+    const data: JsonPlaceholderPost[] = await response.json();
+    
+    // Transform JSONPlaceholder data to match our PostProps interface
+    const posts: PostProps[] = data.slice(0, 12).map(post => ({
+      id: post.id,
+      title: post.title,
+      content: post.body,
+      userId: post.userId
+    }));
+    
+    return {
+      props: {
+        initialPosts: posts
+      },
+      // Re-generate the page at most once every 60 seconds
+      revalidate: 60
+    };
+  } catch (error) {
+    return {
+      props: {
+        initialPosts: [],
+        error: error instanceof Error ? error.message : 'An error occurred'
+      }
+    };
+  }
+}
 
-  // Fetch posts from JSONPlaceholder API
+interface PostsPageProps {
+  initialPosts: PostProps[];
+  error?: string;
+}
+
+const PostsPage: React.FC<PostsPageProps> = ({ initialPosts, error: initialError }) => {
+  const [posts, setPosts] = useState<PostProps[]>(initialPosts);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(initialError || null);
+
+  // Client-side refresh function
   const fetchPosts = async () => {
     try {
       setLoading(true);
@@ -37,10 +78,6 @@ const PostsPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
 
   // Handle refresh
   const handleRefresh = () => {
@@ -76,10 +113,10 @@ const PostsPage: React.FC = () => {
         )}
 
         {/* Error State */}
-        {error && (
+        {(error || initialError) && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center mb-8">
             <h3 className="text-red-800 font-semibold text-lg mb-2">Error Loading Posts</h3>
-            <p className="text-red-600 mb-4">{error}</p>
+            <p className="text-red-600 mb-4">{error || initialError}</p>
             <button
               onClick={handleRefresh}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
@@ -90,7 +127,7 @@ const PostsPage: React.FC = () => {
         )}
 
         {/* Posts Grid */}
-        {!loading && !error && (
+        {!loading && !error && !initialError && (
           <>
             <div className="mb-6 flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-800">
@@ -124,12 +161,15 @@ const PostsPage: React.FC = () => {
               <p className="text-blue-700 text-sm">
                 The API provides 100 sample posts. We're displaying the first 12 posts for demonstration.
               </p>
+              <p className="text-blue-700 text-sm mt-2">
+                <strong>Note:</strong> This page uses getStaticProps for server-side data fetching at build time.
+              </p>
             </div>
           </>
         )}
 
         {/* Empty State */}
-        {!loading && !error && posts.length === 0 && (
+        {!loading && !error && !initialError && posts.length === 0 && (
           <div className="text-center py-12">
             <h3 className="text-xl font-semibold text-gray-600 mb-4">
               No posts found
