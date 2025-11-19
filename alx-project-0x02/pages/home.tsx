@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '@/components/layout/Header';
+import Header from '@/components/layout/Header'; // Ensure this import exists
 import Card from '@/components/common/Card';
 import PostModal, { PostData } from '@/components/common/PostModal';
 
@@ -21,16 +21,15 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header /> {/* Ensure Header component is used */}
       <main className="container mx-auto px-4 py-8">
-        {/* Header Section */}
+        {/* ... rest of the home page content remains the same ... */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Home Page</h1>
           <p className="text-xl text-gray-600 mb-6">
             Welcome to the Home page featuring reusable Card components!
           </p>
           
-          {/* Add Post Button */}
           <button
             onClick={handleOpenModal}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium"
@@ -77,51 +76,14 @@ const HomePage: React.FC = () => {
             content="Tailwind CSS is a utility-first CSS framework for rapid UI development."
             variant="secondary"
           />
-
-          <Card
-            title="Component Reusability"
-            content="Creating reusable components promotes consistency and reduces code duplication."
-            className="transform hover:scale-105"
-          />
-
-          <Card
-            title="ALX Project Goals"
-            content="This project helps us master modern web development practices."
-          />
-
-          <Card
-            title="Future Enhancements"
-            content="We can extend this Card component with more props for various use cases."
-            variant="primary"
-          />
         </div>
 
-        {/* Additional Section */}
-        <div className="mt-12">
-          <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
-            Key Technologies
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card
-              title="React Ecosystem"
-              content="React's component-based architecture is ideal for building complex user interfaces."
-              variant="primary"
-            />
-            <Card
-              title="Modern JavaScript"
-              content="ES6+ features enhance code readability and developer productivity."
-              variant="secondary"
-            />
-          </div>
-        </div>
+        <PostModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmitPost}
+        />
       </main>
-
-      {/* Post Modal */}
-      <PostModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmitPost}
-      />
     </div>
   );
 };
