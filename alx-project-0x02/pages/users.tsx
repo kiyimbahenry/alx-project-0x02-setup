@@ -1,15 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import UserCard from '@/components/common/UserCard';
 import { type JsonPlaceholderUser, type UserProps } from '@/interfaces';
 
-const UsersPage: React.FC = () => {
-  const [users, setUsers] = useState<UserProps[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+// This function runs at build time
+export async function getStaticProps() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch users: ${response.status}`);
+    }
+    
+    const data: JsonPlaceholderUser[] = await response.json();
+    
+    // Transform JSONPlaceholder data to match our UserProps interface
+    const users: UserProps[] = data.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      website: user.website,
+      address: {
+        street: user.address.street,
+        suite: user.address.suite,
+        city: user.address.city,
+        zipcode: user.address.zipcode
+      },
+      company: {
+        name: user.company.name
+      }
+    }));
+    
+    return {
+      props: {
+        initialUsers: users
+      },
+      // Re-generate the page at most once every 60 seconds
+      // if there are incoming requests
+      revalidate: 60
+    };
+  } catch (error) {
+    return {
+      props: {
+        initialUsers: [],
+        error: error instanceof Error ? error.message : 'An error occurred'
+      }
+    };
+  }
+}
+
+interface UsersPageProps {
+  initialUsers: UserProps[];
+  error?: string;
+}
+
+const UsersPage: React.FC<UsersPageProps> = ({ initialUsers, error: initialError }) => {
+  const [users, setUsers] = useState<UserProps[]>(initialUsers);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(initialError || null);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Fetch users from JSONPlaceholder API
+  // Client-side refresh function
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -48,10 +100,6 @@ const UsersPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   // Filter users based on search term
   const filteredUsers = users.filter(user =>
@@ -137,10 +185,10 @@ const UsersPage: React.FC = () => {
         )}
 
         {/* Error State */}
-        {error && (
+        {(error || initialError) && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center mb-8">
             <h3 className="text-red-800 font-semibold text-lg mb-2">Error Loading Users</h3>
-            <p className="text-red-600 mb-4">{error}</p>
+            <p className="text-red-600 mb-4">{error || initialError}</p>
             <button
               onClick={handleRefresh}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
@@ -151,7 +199,7 @@ const UsersPage: React.FC = () => {
         )}
 
         {/* Users Grid */}
-        {!loading && !error && (
+        {!loading && !error && !initialError && (
           <>
             {filteredUsers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -197,6 +245,9 @@ const UsersPage: React.FC = () => {
               </p>
               <p className="text-blue-700 text-sm">
                 The API provides 10 sample users with complete profile information including contact details and addresses.
+              </p>
+              <p className="text-blue-700 text-sm mt-2">
+                <strong>Note:</strong> This page uses getStaticProps for server-side data fetching at build time.
               </p>
             </div>
           </>
