@@ -47,3 +47,21 @@ export interface ButtonProps {
   disabled?: boolean;
   className?: string;
 }
+
+// ... existing interfaces ...
+
+// PostCard component props interface
+export interface PostProps {
+  id: number;
+  title: string;
+  content: string;
+  userId: number;
+}
+
+// JSONPlaceholder Post interface
+export interface JsonPlaceholderPost {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+}
