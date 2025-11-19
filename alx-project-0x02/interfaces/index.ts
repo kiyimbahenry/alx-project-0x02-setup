@@ -11,3 +11,11 @@ export interface Project {
   description: string;
   createdAt: Date;
 }
+
+// Card component props interface
+export interface CardProps {
+  title: string;
+  content: string;
+  variant?: 'default' | 'primary' | 'secondary';
+  className?: string;
+}
